@@ -20,6 +20,7 @@ import {
 } from "react-icons/fa";
 
 interface EvaUsuario {
+  contador: number
   idevageneral: number | null
   userid: string;
   cedula: string;
@@ -296,7 +297,7 @@ export default function PendingEmployees({ documento }: Props) {
         <div className="grid gap-4">
           {filteredEmployees.map((employee) => (
             <div
-              key={employee.idevageneral}
+              key={employee.contador}
               className={`
                 bg-white rounded-xl shadow-md p-5 
                 border-l-4 transition-all duration-300
