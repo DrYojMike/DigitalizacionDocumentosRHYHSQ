@@ -54,7 +54,7 @@ interface ApiResponse<T> {
   data: T;
 }
 
-export default function EmployeeEvaluation({ idevageneral }: Props) {
+export default function EmployeeEvaluation({ idevageneral}: Props) {
   const { user } = useAuth();
   const [data, setData] = useState<Evaluacion | null>(null);
   const [loading, setLoading] = useState(true);
@@ -221,7 +221,7 @@ export default function EmployeeEvaluation({ idevageneral }: Props) {
             El usuario seleccionado aún no ha realizado la autoevaluación.
           </p>
           <Link
-            href="/dashboard/evaluaciones"
+            href={`/evaluaciones/dashboard/listPendiente/${user?.documento}`}
             className="inline-block mt-6 px-6 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-colors"
           >
             Volver

@@ -87,14 +87,14 @@ export default function Header() {
                 {dropdownOpen && (
                   <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border-2 border-red-100 overflow-hidden">
                     <div className="py-1">
-                      <Link 
+                      {/* <Link 
                         href="/perfil" 
                         className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors duration-200"
                         onClick={() => setDropdownOpen(false)}
                       >
                         <FaUserCircle className="inline mr-2 text-red-600" />
                         Mi Perfil
-                      </Link>
+                      </Link> */}
                       <hr className="border-red-100" />
                       <button
                         onClick={() => { logout(); setDropdownOpen(false); }}
