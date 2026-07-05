@@ -1,4 +1,4 @@
-import PendingEmployees from "@/app/components/evaluacion/ListEmpleados";
+import PendingEmployees from "@/app/evaluaciones/Componnents/ListOfEmployeesAtEvaluation";
 
 interface Props {
     params: Promise<{

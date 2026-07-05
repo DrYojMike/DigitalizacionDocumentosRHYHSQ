@@ -3,44 +3,16 @@
 import { useEffect, useState } from "react";
 import { httpClient } from "@/app/services/api/client";
 import Link from "next/link";
-import { 
-  FaUsers, 
-  FaClock, 
-  FaCheckCircle, 
-  FaUser,
-  FaBuilding,
-  FaBriefcase,
-  FaIdCard,
-  FaSearch,
-  FaFilter,
-  FaArrowRight,
-  FaExclamationCircle,
-  FaUserCheck,
-  FaUserClock
-} from "react-icons/fa";
-
-interface EvaUsuario {
-  contador: number
-  idevageneral: number | null
-  userid: string;
-  cedula: string;
-  name: string;
-  cargo: string;
-  departamento: string;
-  evaluacion: string | null;
-  evaluado: string | null;
-}
-
-interface PendingEmployeesResponse {
-  message: string;
-  data: EvaUsuario[];
-}
+import { FaUsers, FaClock, FaCheckCircle, FaBuilding,FaBriefcase,FaIdCard,FaFilter,FaArrowRight,FaExclamationCircle,FaUserCheck,FaUserClock} from "react-icons/fa";
+import { EvaUsuario } from "@/app/evaluaciones/types/ListOfEmployeesAtEvaluation";
+import { ApiResponse, ApiError } from "@/app/services/api/types";
+import { sileo } from "sileo";
 
 interface Props {
   documento: string;
 }
 
-export default function PendingEmployees({ documento }: Props) {
+export default function ListOfEmployeesAtEvaluation({ documento }: Props) {
   const [employees, setEmployees] = useState<EvaUsuario[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,14 +28,20 @@ export default function PendingEmployees({ documento }: Props) {
     try {
       setLoading(true);
       setError(null);
-      const response = await httpClient.get<PendingEmployeesResponse>(
+      const response = await httpClient.get<ApiResponse<EvaUsuario[]>>(
         `evaluacion/list/empleados/${documento}`
       );
       setEmployees(response.data.data);
-      
-    } catch (error) {
+      sileo.success({
+        description: response.data.message
+      })
+    } catch (err) {
+      const error = err as ApiError
       console.error("Error al cargar empleados:", error);
-      setError("No se pudo cargar la lista de empleados. Intenta nuevamente.");
+      sileo.error({
+        title: `Error: ${error.status}`,
+        description: error.message
+      })
       setEmployees([]);
     } finally {
       setLoading(false);
@@ -127,14 +105,6 @@ export default function PendingEmployees({ documento }: Props) {
 
   return (
     <div className="space-y-6">
-      {/* Error State */}
-      {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl flex items-center gap-2">
-          <FaExclamationCircle className="text-red-500" />
-          {error}
-        </div>
-      )}
-
       {/* Stats Cards mejoradas */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="bg-white rounded-xl shadow-md p-5 border border-gray-100 hover:shadow-lg transition-shadow duration-300">
@@ -185,8 +155,7 @@ export default function PendingEmployees({ documento }: Props) {
         <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setFilter("all")}
-            className={`
-              flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200
               ${
                 filter === "all"
                   ? "bg-red-600 text-white shadow-md scale-105"
@@ -200,8 +169,7 @@ export default function PendingEmployees({ documento }: Props) {
 
           <button
             onClick={() => setFilter("pending")}
-            className={`
-              flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200
               ${
                 filter === "pending"
                   ? "bg-red-600 text-white shadow-md scale-105"
@@ -215,8 +183,7 @@ export default function PendingEmployees({ documento }: Props) {
 
           <button
             onClick={() => setFilter("completed")}
-            className={`
-              flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200
               ${
                 filter === "completed"
                   ? "bg-green-600 text-white shadow-md scale-105"
@@ -237,30 +204,11 @@ export default function PendingEmployees({ documento }: Props) {
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
-            className="
-              bg-white
-              border
-              border-gray-300
-              rounded-lg
-              px-4
-              py-2
-              text-gray-700
-              font-medium
-              outline-none
-              focus:ring-2
-              focus:ring-red-500
-              focus:border-red-500
-              transition-all
-              duration-200
-              hover:border-red-400
-              cursor-pointer
-            "
-          >
+            className="bg-white border border-gray-300 rounded-lg px-4 py-2 text-gray-700 font-medium outline-none
+              focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 hover:border-red-400 cursor-pointer">
             <option value="all">Todos los años</option>
-
             {availableYears
-              .filter((year) => year !== "all")
-              .map((year) => (
+              .filter((year) => year !== "all").map((year) => (
                 <option key={year} value={year}>
                   {year}
                 </option>
@@ -298,10 +246,7 @@ export default function PendingEmployees({ documento }: Props) {
           {filteredEmployees.map((employee) => (
             <div
               key={employee.contador}
-              className={`
-                bg-white rounded-xl shadow-md p-5 
-                border-l-4 transition-all duration-300
-                hover:shadow-lg hover:-translate-y-1
+              className={`bg-white rounded-xl shadow-md p-5  border-l-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-1
                 ${
                   employee.evaluacion === null
                     ? "border-red-500 hover:border-red-400"
@@ -346,12 +291,8 @@ export default function PendingEmployees({ documento }: Props) {
                   {employee.evaluado === null ? (
                     <Link
                       href={`/evaluaciones/evaluar/${employee.idevageneral}`}
-                      className="
-                        group flex items-center gap-2 px-6 py-2.5 
-                        bg-red-600 text-white rounded-xl font-medium
-                        hover:bg-red-700 hover:shadow-lg transition-all duration-300
-                        hover:-translate-y-0.5
-                      "
+                      className="group flex items-center gap-2 px-6 py-2.5  bg-red-600 text-white rounded-xl font-medium
+                        hover:bg-red-700 hover:shadow-lg transition-all duration-300 hover:-translate-y-0.5"
                     >
                       <FaUserCheck className="text-sm" />
                       Evaluar

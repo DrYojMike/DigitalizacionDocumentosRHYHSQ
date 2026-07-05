@@ -1,4 +1,4 @@
-import EmployeeEvaluationList from "@/app/components/evaluacion/MyListEvaluations";
+import EmployeeEvaluationList from "@/app/evaluaciones/Componnents/MylistOfEvaluations";
 interface Props {
     params: Promise<{
         idusuario: string;
@@ -21,7 +21,7 @@ export default async function Page({
                     mb-8
                 "
             >
-                Evaluaciones Realiazadas
+                Evaluaciones Realizadas
             </h1>
 
             <EmployeeEvaluationList

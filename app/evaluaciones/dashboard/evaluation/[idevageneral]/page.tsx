@@ -1,5 +1,5 @@
 
-import MyEvaluation from "@/app/components/evaluacion/MyEvaluacion";
+import MyEvaluation from "@/app/evaluaciones/Componnents/GetMyEvaluacion";
 interface Props {
     params: Promise<{
         idevageneral: number;

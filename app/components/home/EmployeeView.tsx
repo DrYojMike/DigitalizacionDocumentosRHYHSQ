@@ -35,14 +35,14 @@ export default function EmployeeView({
             />
         )} */}
 
-      {empleadoAcargo && (
+      {/* {empleadoAcargo && (
         <ModuleCard
           icon={<FaUsers />}
           title="Equipo a cargo"
           description="Gestiona la información de tu equipo de trabajo."
           href="/empleados"
         />
-      )}
+      )} */}
 
     </div>
   );

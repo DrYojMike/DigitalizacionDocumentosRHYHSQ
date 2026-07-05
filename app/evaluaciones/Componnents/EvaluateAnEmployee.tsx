@@ -3,58 +3,16 @@
 import { useEffect, useState } from "react";
 import { httpClient } from "@/app/services/api/client";
 import { useAuth } from "@/app/context/AuthContext";
-import { 
-  FaStar, 
-  FaCheckCircle, 
-  FaClock, 
-  FaSave, 
-  FaPlus, 
-  FaUser, 
-  FaUserTie,
-  FaChartLine,
-  FaArrowLeft,
-  FaArrowRight
-} from "react-icons/fa";
+import { FaStar, FaCheckCircle, FaClock, FaSave, FaPlus, FaUser, FaUserTie,FaChartLine,FaArrowLeft} from "react-icons/fa";
 import Link from "next/link";
-
-interface Indicador {
-  idIndicador: number;
-  indicador: string;
-  nota: number;
-}
-
-interface Competencia {
-  idCompetencia: number;
-  nombre: string;
-  descripcion: string;
-  indicadores: Indicador[];
-}
-
-interface Area {
-  idArea: number;
-  area: string;
-  competencias: Competencia[];
-}
-
-interface Evaluacion {
-  idEvaluacion: number;
-  idEmpleado: string;
-  idJefe: string;
-  fecha: string;
-  areas: Area[];
-}
-
+import { ApiResponse, ApiError} from "@/app/services/api/types";
+import { Evaluacion } from "@/app/evaluaciones/types/EvaluateAnEmployee";
+import { sileo } from "sileo";
 interface Props {
   idevageneral: number;
 }
 
-interface ApiResponse<T> {
-  success: boolean;
-  message: string;
-  data: T;
-}
-
-export default function EmployeeEvaluation({ idevageneral}: Props) {
+export default function EvaluateAnEmployee({ idevageneral}: Props) {
   const { user } = useAuth();
   const [data, setData] = useState<Evaluacion | null>(null);
   const [loading, setLoading] = useState(true);
@@ -90,9 +48,23 @@ export default function EmployeeEvaluation({ idevageneral}: Props) {
         `evaluacion/autoevaluacion/empleado/${idevageneral}/`
       );
       setData(response.data.data);
-    } catch (error) {
+      const evaluacion = response.data.data;
+      if (evaluacion) {
+        sileo.success({
+          description: response.data.message,
+        });
+      } else {
+        sileo.warning({
+          description: "El empleado no cuenta con la AutoEvaluación realizada",
+        });
+      }
+    } catch (err) {
+      const error = err as ApiError
       console.error("Error al cargar evaluación:", error);
-      setError("No se pudo cargar la evaluación. Intenta nuevamente.");
+      sileo.error({
+        title: `Error: ${error.status}`,
+        description: error.message
+      })
       setData(null);
     } finally {
       setLoading(false);
@@ -116,12 +88,8 @@ export default function EmployeeEvaluation({ idevageneral}: Props) {
       <div className="flex gap-2 justify-center">
         {[1, 2, 3].map((num) => (
           <button
-            key={num}
-            type="button"
-            onClick={() => onChange(num)}
-            className={`
-              w-10 h-10 rounded-full font-bold transition-all duration-200
-              flex items-center justify-center
+            key={num} type="button"
+            onClick={() => onChange(num)} className={`w-10 h-10 rounded-full font-bold transition-all duration-200 flex items-center justify-center
               ${
                 value === num
                   ? "bg-red-600 text-white scale-110 shadow-md ring-2 ring-red-300 ring-offset-2"
@@ -152,17 +120,23 @@ export default function EmployeeEvaluation({ idevageneral}: Props) {
 
   const guardarEvaluacion = async () => {
     if (!data) {
-      alert("No existe información de evaluación.");
+      sileo.warning({
+        description: "No existe información de evaluación."
+      })
       return;
     }
 
     if (!data.idEmpleado || !data.idJefe) {
-      alert("No existe empleado o jefe asociado.");
+      sileo.warning({
+        description: "No existe empleado o jefe asociado."
+      })
       return;
     }
 
     if (Object.keys(ratings).length !== totalIndicadores) {
-      alert("Debe calificar todos los indicadores.");
+      sileo.warning({
+        description: "Debe calificar todos los indicadores."
+      })
       return;
     }
 
@@ -184,13 +158,19 @@ export default function EmployeeEvaluation({ idevageneral}: Props) {
       };
 
       await httpClient.post("evaluacion/evaluar-empleado/", payload);
-      alert("✅ Evaluación guardada exitosamente");
+      sileo.success({
+        description: "Evaluación guardada exitosamente"
+      })
       window.location.href ="/evaluaciones/dashboard";
       setRatings({});
       setCompromisos([""]);
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as ApiError
       console.error("Error guardando evaluación:", error);
-      alert(error?.response?.data?.message || "Error guardando evaluación");
+      sileo.error({
+        title:`Error: ${error.status}`,
+        description: error.message
+      })
     } finally {
       setSaving(false);
     }
@@ -234,7 +214,7 @@ export default function EmployeeEvaluation({ idevageneral}: Props) {
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
-        {/* Header mejorado */}
+        {/* Header */}
         <div className="bg-white rounded-2xl shadow-md p-6 mb-8 border-l-4 border-red-600 hover:shadow-lg transition-shadow duration-300">
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div>
@@ -278,14 +258,6 @@ export default function EmployeeEvaluation({ idevageneral}: Props) {
             </div>
           </div>
         </div>
-
-        {/* Error state */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6">
-            {error}
-          </div>
-        )}
-
         {/* Áreas y Competencias */}
         {data.areas.map((area, areaIndex) => (
           <div key={area.idArea} className="mb-10">
@@ -435,7 +407,7 @@ export default function EmployeeEvaluation({ idevageneral}: Props) {
             <span className="flex items-center gap-2 text-gray-600">
               <FaClock className="text-gray-400" />
               {evaluados === totalIndicadores
-                ? "✅ Listo para guardar"
+                ? "Listo para guardar"
                 : `Faltan ${totalIndicadores - evaluados}`}
             </span>
             {compromisosLimpios.length > 0 && (

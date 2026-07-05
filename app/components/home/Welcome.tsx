@@ -1,10 +1,5 @@
 import Card from "@/app/components/home/Card";
-import {
-  FaShieldAlt,
-  FaFileAlt,
-  FaRocket,
-  FaArrowRight,
-} from "react-icons/fa";
+import {FaShieldAlt,FaFileAlt,FaRocket,FaArrowRight,} from "react-icons/fa";
 
 export default function Welcome() {
   return (

@@ -1,27 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AxiosError } from "axios";
+import { sileo } from "sileo";
 import { httpClient } from "@/app/services/api/client";
 import { useAuth } from "@/app/context/AuthContext";
 import { FaCheckCircle, FaClock, FaSave, FaStar } from "react-icons/fa";
-
-interface Indicador {
-  id: number;
-  nombre: string;
-}
-
-interface Competencia {
-  nombre: string;
-  descripcion: string;
-  indicadores: Indicador[];
-}
-
-interface Area {
-  area: string;
-  competencias: Competencia[];
-}
-
+import { Area } from "@/app/evaluaciones/types/GetEvaluation";
+import { ApiResponse, ApiError } from "@/app/services/api/types";
 interface Props {
   tipo: number;
 }
@@ -31,7 +16,7 @@ interface RespuestaEvaluacion {
   nota: number;
 }
 
-export default function Evaluation({ tipo }: Props) {
+export default function GetEvaluation({ tipo }: Props) {
   const { user, refreshUser } = useAuth();
   const [data, setData] = useState<Area[]>([]);
   const [loading, setLoading] = useState(false);
@@ -43,11 +28,18 @@ export default function Evaluation({ tipo }: Props) {
     try {
       setLoading(true);
       setError(null);
-      const response = await httpClient.get<any>(`evaluacion/formato/${tipo}/`);
+      const response = await httpClient.get<ApiResponse<Area[]>>(`evaluacion/formato/${tipo}/`);
       setData(response.data.data);
-    } catch (error) {
+      sileo.success({
+          description: response.data.message
+      });
+    } catch (err) {
+      const error = err as ApiError
       console.error("Error al cargar evaluación:", error);
-      setError("No se pudo cargar la evaluación. Intenta nuevamente.");
+      sileo.error({
+        title: `Error: ${error.status}`,
+        description: error.message
+      })
       setData([]);
     } finally {
       setLoading(false);
@@ -63,12 +55,16 @@ export default function Evaluation({ tipo }: Props) {
 
   const guardarEvaluacion = async () => {
     if (!user) {
-      alert("Usuario no autenticado");
+      sileo.warning({
+        description:"Usuario no autenticado"
+      });
       return;
     }
 
     if (Object.keys(ratings).length !== totalIndicadores) {
-      alert("Debe evaluar todos los indicadores.");
+      sileo.warning({
+        description:"Debe evaluar todos los indicadores."
+      })
       return;
     }
 
@@ -88,20 +84,40 @@ export default function Evaluation({ tipo }: Props) {
         respuestas,
       };
 
-      await httpClient.post("evaluacion/evaluations/create/", payload);
+      const promise =  httpClient.post<ApiResponse>("evaluacion/evaluations/create/", payload);
+      await sileo.promise(promise, {
+      loading: {
+        title: "Guardando evaluación...",
+      },
+      success: (response) => ({
+        title: response.data.message ?? "Evaluación guardada correctamente",
+      }),
+      error: (err: unknown) => {
+        if (
+          typeof err === "object" &&
+          err !== null &&
+          "message" in err
+        ) {
+          return {
+            title: (err as ApiError).message,
+          };
+        }
+
+        return {
+          title: "Ocurrió un error inesperado.",
+        };
+      },
+      });
       await refreshUser();
-      
-      alert("✅ Evaluación guardada exitosamente");
       window.location.href ="/evaluaciones/dashboard";
       setRatings({});
-    } catch (error: any) {
+    } catch (err) {
+      const error = err as ApiError
       console.error("Error al guardar evaluación:", error);
-      
-      if (error.response?.data?.message) {
-        alert(error.response.data.message);
-      } else {
-        alert("Error al guardar la evaluación. Intenta nuevamente.");
-      }
+      sileo.error({
+        title: `Error: ${error.status}`,
+        description: error.message
+      })
     } finally {
       setSaving(false);
     }
@@ -119,16 +135,13 @@ export default function Evaluation({ tipo }: Props) {
           <button
             key={num}
             onClick={() => onChange(num)}
-            className={`
-              w-10 h-10 rounded-full font-bold transition-all duration-200
-              flex items-center justify-center
+            className={`w-10 h-10 rounded-full font-bold transition-all duration-200 flex items-center justify-center
               ${
-                value === num
-                  ? "bg-red-600 text-white scale-110 shadow-md"
+                value === num ? "bg-red-600 text-white scale-110 shadow-md"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200 hover:scale-105"
               }
-            `}
-          >
+              `}
+            >
             {num}
           </button>
         ))}
@@ -153,6 +166,7 @@ export default function Evaluation({ tipo }: Props) {
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-6xl mx-auto">
         {/* Header mejorado */}
+
         <div className="bg-white rounded-2xl shadow-md p-6 mb-8 border-l-4 border-red-600 hover:shadow-lg transition-shadow duration-300">
           <div className="flex items-start justify-between flex-wrap gap-4">
             <div>
@@ -178,14 +192,6 @@ export default function Evaluation({ tipo }: Props) {
             </div>
           </div>
         </div>
-
-        {/* Error state */}
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-6">
-            {error}
-          </div>
-        )}
-
         {/* Loading state mejorado */}
         {loading && (
           <div className="flex flex-col items-center justify-center py-16">

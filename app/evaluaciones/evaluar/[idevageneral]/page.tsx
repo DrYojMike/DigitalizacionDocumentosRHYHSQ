@@ -1,4 +1,4 @@
-import EmployeeEvaluation from "@/app/components/evaluacion/EvaluarEmpleado";
+import EmployeeEvaluation from "@/app/evaluaciones/Componnents/EvaluateAnEmployee";
 
 interface Props {
     params: Promise<{

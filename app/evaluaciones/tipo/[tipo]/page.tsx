@@ -1,4 +1,4 @@
-import Evaluation from "@/app/components/evaluacion/Evaluacion";
+import Evaluation from "@/app/evaluaciones/Componnents/GetEvaluation";
 
 
 interface Props {
