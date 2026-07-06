@@ -7,6 +7,7 @@ import { useAuth } from "@/app/context/AuthContext";
 import { FaCheckCircle, FaClock, FaSave, FaStar } from "react-icons/fa";
 import { Area } from "@/app/evaluaciones/types/GetEvaluation";
 import { ApiResponse, ApiError } from "@/app/services/api/types";
+import { SiLogmein } from "react-icons/si";
 interface Props {
   tipo: number;
 }
@@ -84,32 +85,22 @@ export default function GetEvaluation({ tipo }: Props) {
         respuestas,
       };
 
-      const promise =  httpClient.post<ApiResponse>("evaluacion/evaluations/create/", payload);
-      await sileo.promise(promise, {
-      loading: {
-        title: "Guardando evaluación...",
-      },
-      success: (response) => ({
-        title: response.data.message ?? "Evaluación guardada correctamente",
-      }),
-      error: (err: unknown) => {
-        if (
-          typeof err === "object" &&
-          err !== null &&
-          "message" in err
-        ) {
-          return {
-            title: (err as ApiError).message,
-          };
-        }
+      const response =  httpClient.post<ApiResponse>("evaluacion/evaluations/create/", payload);
 
-        return {
-          title: "Ocurrió un error inesperado.",
-        };
-      },
-      });
+      if ((await response).data.status === 201) {
+        sileo.success({
+          description: (await response).data.message,
+        });
+      } else if ((await response).data.status === 400) {
+        sileo.warning({
+          title: `Error: ${(await response).data.status}`,
+          description: (await response).data.message,
+        });
+}
       await refreshUser();
-      window.location.href ="/evaluaciones/dashboard";
+      setTimeout(() => {
+        window.location.href = "/evaluaciones/dashboard";
+      }, 3000);
       setRatings({});
     } catch (err) {
       const error = err as ApiError
