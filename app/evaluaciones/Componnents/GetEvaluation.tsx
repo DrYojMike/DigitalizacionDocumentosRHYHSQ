@@ -87,21 +87,24 @@ export default function GetEvaluation({ tipo }: Props) {
 
       const response =  httpClient.post<ApiResponse>("evaluacion/evaluations/create/", payload);
 
-      if ((await response).data.status === 201) {
+      if ((await response).data.status === 201 || (await response).data.status === 200) {
         sileo.success({
           description: (await response).data.message,
         });
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 5000);
+        await refreshUser();
+        setRatings({});
       } else if ((await response).data.status === 400) {
-        sileo.warning({
+        return sileo.warning({
           title: `Error: ${(await response).data.status}`,
           description: (await response).data.message,
         });
-}
-      await refreshUser();
-      setTimeout(() => {
-        window.location.href = "/evaluaciones/dashboard";
-      }, 3000);
-      setRatings({});
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 5000);
+      }
     } catch (err) {
       const error = err as ApiError
       console.error("Error al guardar evaluación:", error);
