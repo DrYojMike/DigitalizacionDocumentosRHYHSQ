@@ -14,7 +14,7 @@ export default function EvaluacionHome() {
   const hoy = new Date();
   hoy.setHours(0, 0, 0, 0);
 
-  const fechaLimite = new Date("2026-07-15");
+  const fechaLimite = new Date("2026-07-31");
   fechaLimite.setHours(0, 0, 0, 0);
 
   const puedeEvaluar =

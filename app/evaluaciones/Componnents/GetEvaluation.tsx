@@ -96,14 +96,11 @@ export default function GetEvaluation({ tipo }: Props) {
         }, 5000);
         await refreshUser();
         setRatings({});
-      } else if ((await response).data.status === 400) {
-        return sileo.warning({
+      } else if ((await response).data.status === 400  || (await response).data.status === 500) {
+        sileo.warning({
           title: `Error: ${(await response).data.status}`,
           description: (await response).data.message,
         });
-        setTimeout(() => {
-          window.location.href = "/";
-        }, 5000);
       }
     } catch (err) {
       const error = err as ApiError

@@ -1,25 +1,18 @@
-import Card from "@/app/components/home/Card";
-
+import ModuleCard from "@/app/components/home/ModuleCard";
+import {
+  FaClipboardCheck
+} from "react-icons/fa";
 
 export default function AdminView() {
-
 
     return (
 
         <div className="grid md:grid-cols-3 gap-6">
-            <Card
-                title="👥 Usuarios"
-                text="Gestiona empleados y accesos"
-            />
-
-            <Card
-                title="📄 Certificaciones"
-                text="Genera certificados"
-            />
-
-            <Card
-                title="⚙️ Administración"
-                text="Permisos y configuraciones"
+            <ModuleCard
+                icon={<FaClipboardCheck />}
+                title="Ver Estadisticas De Evaluacion de Desempeño."
+                description="Visualiza de manera grafica los reportes anuales de las evaluaciones de desempeño."
+                href={`/evaluaciones/dashboard/indicadores/`}
             />
         </div>
 
