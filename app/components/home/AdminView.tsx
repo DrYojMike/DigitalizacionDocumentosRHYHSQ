@@ -14,6 +14,13 @@ export default function AdminView() {
                 description="Visualiza de manera grafica los reportes anuales de las evaluaciones de desempeño."
                 href={`/evaluaciones/dashboard/indicadores/`}
             />
+
+            <ModuleCard
+                icon={<FaClipboardCheck />}
+                title="Socializar Evaluacion de Desempeño"
+                description="Socializa la evaluacion a tus colaboradores de manera rapida y sencilla."
+                href={`/evaluaciones/dashboard/SocializarList/`}
+            />
         </div>
 
     )
