@@ -106,12 +106,15 @@ export default function SocializacionEvaluationListEmploye({ docuemntoEmpleado }
                             <span className="font-semibold">
                                 Socializado por:
                             </span>{" "}
+                            
                             {evaluation.SocializadoPor ?? (
                                 <span className="text-red-600">
                                     Aún no socializada
                                 </span>
                             )}
+
                         </p>
+                        <Link href={`/evaluaciones/dashboard/SocializarList/SocializarEmpleado/${evaluation.idEvaluacion}`}>Socializar</Link>
                     </div>
                 </div>
             ))
