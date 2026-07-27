@@ -4,7 +4,16 @@ import { useEffect, useState } from "react";
 import { httpClient } from "@/app/services/api/client";
 import { ApiResponse } from "@/app/services/api/types";
 import { sileo } from "sileo";
-
+import {
+    ResponsiveContainer,
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    Cell,
+} from "recharts";
 interface CompromisoSocializacion {
     idCompromiso: number;
     descripcion: string;
@@ -186,117 +195,272 @@ export default function EvaluationSocializacionDetail({idEvaluacion}: Props) {
     };
 
     return (
-        <div className="max-w-7xl mx-auto space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6">
 
-            {/* Header */}
+        {/* Header */}
 
-            <div className="bg-white rounded-2xl shadow-md border p-6">
+        <div className="rounded-2xl border bg-white p-6 shadow-md">
 
-                <div className="flex justify-between items-center">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 
-                    <div>
+                <div>
 
-                        <h1 className="text-3xl font-bold">
-                            Evaluación #{evaluation.idEvaluacion}
-                        </h1>
+                    <h1 className="text-3xl font-bold">
+                        Evaluación #{evaluation.idEvaluacion}
+                    </h1>
 
-                        <p className="text-gray-500 mt-1">
-                            {evaluation.fechaEvaluacion}
-                        </p>
-
-                    </div>
-
-                    <span className="rounded-full bg-green-100 text-green-700 px-4 py-2 font-semibold">
-
-                        Socializada
-
-                    </span>
+                    <p className="mt-1 text-gray-500">
+                        {evaluation.fechaEvaluacion}
+                    </p>
 
                 </div>
+
+                <span
+                    className={`rounded-full px-5 py-2 font-semibold ${
+                        evaluation.socializacion
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                    }`}
+                >
+                    {evaluation.socializacion
+                        ? "Socializada"
+                        : "Pendiente de socialización"}
+                </span>
 
             </div>
 
-            {/* Información */}
+        </div>
 
-            <div className="grid md:grid-cols-2 gap-5">
+        {/* Empleado */}
 
-                <div className="bg-white rounded-xl border shadow-sm p-6">
+        <div className="grid gap-5 md:grid-cols-2">
 
-                    <h2 className="font-bold text-lg mb-4">
+            <div className="rounded-xl border bg-white p-6 shadow-sm">
 
-                        Empleado
-
-                    </h2>
-
-                    <p className="text-xl font-semibold">
-
-                        {evaluation.nomEmpleado}
-
-                    </p>
-
-                    <p className="text-gray-500">
-
-                        Documento: {evaluation.docEmpleado}
-
-                    </p>
-
-                </div>
-
-                <div className="bg-white rounded-xl border shadow-sm p-6">
-
-                    <h2 className="font-bold text-lg mb-4">
-
-                        Jefe Evaluador
-
-                    </h2>
-
-                    <p className="text-xl font-semibold">
-
-                        {evaluation.nomJefe}
-
-                    </p>
-
-                    <p className="text-gray-500">
-
-                        Documento: {evaluation.docJefe}
-
-                    </p>
-
-                </div>
-
-            </div>
-
-            {/* Competencias */}
-
-            <div>
-
-                <h2 className="text-2xl font-bold mb-4">
-
-                    Competencias
-
+                <h2 className="mb-3 text-lg font-bold">
+                    Empleado
                 </h2>
 
-                <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <p className="text-xl font-semibold">
+                    {evaluation.nomEmpleado}
+                </p>
 
-                    {indicadores.map((item) => (
+                <p className="text-gray-500">
+                    Documento: {evaluation.docEmpleado}
+                </p>
+
+            </div>
+
+            <div className="rounded-xl border bg-white p-6 shadow-sm">
+
+                <h2 className="mb-3 text-lg font-bold">
+                    Jefe Evaluador
+                </h2>
+
+                <p className="text-xl font-semibold">
+                    {evaluation.nomJefe}
+                </p>
+
+                <p className="text-gray-500">
+                    Documento: {evaluation.docJefe}
+                </p>
+
+            </div>
+
+        </div>
+
+        {/* Resultados */}
+
+        <div className="overflow-hidden rounded-2xl border bg-white shadow-md">
+
+            <div className="flex items-center justify-between border-b bg-gray-50 px-6 py-5">
+
+                <h2 className="text-2xl font-bold">
+                    Resultados de la evaluación
+                </h2>
+
+                <div className="rounded-xl bg-yellow-300 px-6 py-3 text-center">
+
+                    <p className="text-sm font-medium">
+                        Calificación General
+                    </p>
+
+                    <p className="text-3xl font-bold">
+                        {(
+                            indicadores.reduce(
+                                (acc, item) => acc + item.valor,
+                                0
+                            ) / indicadores.length
+                        ).toFixed(1)}
+                        %
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div className="grid lg:grid-cols-2">
+
+                {/* Tabla */}
+
+                <div className="border-r p-6">
+
+                    <table className="w-full">
+
+                        <thead>
+
+                            <tr className="border-b bg-gray-100">
+
+                                <th className="py-3 text-left">
+                                    Centro de evaluación
+                                </th>
+
+                                <th className="py-3 text-right">
+                                    %
+                                </th>
+
+                            </tr>
+
+                        </thead>
+
+                        <tbody>
+
+                            {indicadores.map((item) => (
+
+                                <tr
+                                    key={item.nombre}
+                                    className="border-b transition hover:bg-gray-50"
+                                >
+
+                                    <td className="py-3">
+                                        {item.nombre}
+                                    </td>
+
+                                    <td
+                                        className={`py-3 text-right font-bold ${
+                                            item.valor >= 90
+                                                ? "text-green-600"
+                                                : item.valor >= 70
+                                                ? "text-yellow-600"
+                                                : "text-red-600"
+                                        }`}
+                                    >
+                                        {item.valor.toFixed(0)}%
+                                    </td>
+
+                                </tr>
+
+                            ))}
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+                {/* Grafica */}
+
+                <div className="h-[450px] p-6">
+
+                    <ResponsiveContainer
+                        width="100%"
+                        height="100%"
+                    >
+
+                        <BarChart
+                            data={indicadores}
+                        >
+
+                            <CartesianGrid strokeDasharray="3 3" />
+
+                            <XAxis
+                                dataKey="nombre"
+                                angle={-25}
+                                textAnchor="end"
+                                interval={0}
+                            />
+
+                            <YAxis
+                                domain={[0, 100]}
+                            />
+
+                            <Tooltip />
+
+                            <Bar
+                                dataKey="valor"
+                                radius={[6, 6, 0, 0]}
+                            >
+
+                                {indicadores.map(
+                                    (item, index) => (
+
+                                        <Cell
+                                            key={index}
+                                            fill={
+                                                item.valor >= 90
+                                                    ? "#22c55e"
+                                                    : item.valor >= 70
+                                                    ? "#facc15"
+                                                    : "#ef4444"
+                                            }
+                                        />
+
+                                    )
+                                )}
+
+                            </Bar>
+
+                        </BarChart>
+
+                    </ResponsiveContainer>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {/* Registrar Socialización */}
+
+        {!evaluation.socializacion && (
+
+            <div className="rounded-2xl border bg-white p-6 shadow-md">
+
+                <h2 className="mb-5 text-2xl font-bold">
+                    Registrar Socialización
+                </h2>
+
+                <div className="space-y-3">
+
+                    {compromisos.map((item, index) => (
 
                         <div
-                            key={item.nombre}
-                            className={`rounded-xl border p-5 ${getColor(
-                                item.valor
-                            )}`}
+                            key={index}
+                            className="flex gap-3"
                         >
-                            <p className="text-sm">
 
-                                {item.nombre}
+                            <input
+                                value={item}
+                                onChange={(e) =>
+                                    updateCompromiso(
+                                        index,
+                                        e.target.value
+                                    )
+                                }
+                                placeholder={`Compromiso ${
+                                    index + 1
+                                }`}
+                                className="flex-1 rounded-lg border px-4 py-2"
+                            />
 
-                            </p>
-
-                            <h3 className="text-3xl font-bold mt-2">
-
-                                {item.valor.toFixed(1)}%
-
-                            </h3>
+                            <button
+                                onClick={() =>
+                                    removeCompromiso(index)
+                                }
+                                className="rounded-lg bg-red-500 px-4 text-white hover:bg-red-600"
+                            >
+                                Eliminar
+                            </button>
 
                         </div>
 
@@ -304,166 +468,113 @@ export default function EvaluationSocializacionDetail({idEvaluacion}: Props) {
 
                 </div>
 
-            </div>
+                <div className="mt-6 flex justify-between">
 
-            {/* Socialización */}
-            {evaluation.socializacion == null && (
+                    <button
+                        onClick={addCompromiso}
+                        className="rounded-lg bg-blue-600 px-5 py-2 text-white hover:bg-blue-700"
+                    >
+                        Agregar compromiso
+                    </button>
 
-                <div className="bg-white rounded-xl shadow border p-6 mt-6">
-
-                    <h2 className="text-xl font-bold mb-5">
-
-                        Registrar socialización
-
-                    </h2>
-
-                    <div className="space-y-3">
-
-                        {compromisos.map((item,index)=>(
-
-                            <div
-                                key={index}
-                                className="flex gap-3"
-                            >
-
-                                <input
-                                    type="text"
-                                    value={item}
-                                    placeholder={`Compromiso ${index+1}`}
-                                    onChange={(e)=>updateCompromiso(index,e.target.value)}
-                                    className="flex-1 rounded-lg border px-3 py-2"
-                                />
-
-                                <button
-                                    type="button"
-                                    onClick={()=>removeCompromiso(index)}
-                                    className="rounded-lg bg-red-500 text-white px-4"
-                                >
-
-                                    Eliminar
-
-                                </button>
-
-                            </div>
-
-                        ))}
-
-                    </div>
-
-                    <div className="flex justify-between mt-6">
-
-                        <button
-
-                            type="button"
-
-                            onClick={addCompromiso}
-
-                            className="rounded-lg bg-blue-600 text-white px-5 py-2"
-
-                        >
-
-                            Agregar compromiso
-
-                        </button>
-
-                        <button
-
-                            type="button"
-
-                            disabled={loading}
-
-                            onClick={socializar}
-
-                            className="rounded-lg bg-green-600 text-white px-6 py-2"
-
-                        >
-
-                            {loading ? "Guardando..." : "Socializar evaluación"}
-
-                        </button>
-
-                    </div>
+                    <button
+                        disabled={loading}
+                        onClick={socializar}
+                        className="rounded-lg bg-green-600 px-6 py-2 text-white hover:bg-green-700"
+                    >
+                        {loading
+                            ? "Guardando..."
+                            : "Socializar evaluación"}
+                    </button>
 
                 </div>
 
-                )}
-            <div className="bg-white rounded-xl shadow-sm border p-6">
-
-                <h2 className="text-2xl font-bold mb-5">
-
-                    Socialización
-
-                </h2>
-
-                {evaluation.socializacion ? (
-                    <>
-                        <div className="mb-6">
-
-                            <p className="text-gray-500 text-sm">
-
-                                Socializador
-
-                            </p>
-
-                            <p className="text-lg font-semibold">
-
-                                {evaluation.socializacion.socializador}
-
-                            </p>
-
-                        </div>
-
-                        <div>
-
-                            <h3 className="font-semibold mb-3">
-
-                                Compromisos
-
-                            </h3>
-
-                            {evaluation.socializacion.compromisos.length ===
-                            0 ? (
-                                <p className="text-gray-500">
-
-                                    No existen compromisos.
-
-                                </p>
-                            ) : (
-                                <div className="space-y-3">
-
-                                    {evaluation.socializacion.compromisos.map(
-                                        (item) => (
-                                            <div
-                                                key={item.idCompromiso}
-                                                className="rounded-lg border bg-gray-50 p-4"
-                                            >
-                                                <p>
-
-                                                    {item.descripcion}
-
-                                                </p>
-                                            </div>
-                                        )
-                                    )}
-
-                                </div>
-                            )}
-                        </div>
-                    </>
-                ) : (
-                    <div className="text-center py-10">
-
-                        <h3 className="text-xl font-semibold text-red-600">
-
-                            La evaluación aún no ha sido socializada.
-
-                        </h3>
-
-                    </div>
-                )}
-
             </div>
 
+        )}
+
+        {/* Socialización */}
+
+        <div className="rounded-2xl border bg-white p-6 shadow-md">
+
+            <h2 className="mb-6 text-2xl font-bold">
+                Socialización
+            </h2>
+
+            {evaluation.socializacion ? (
+
+                <>
+
+                    <div className="mb-6">
+
+                        <p className="text-sm text-gray-500">
+                            Socializador
+                        </p>
+
+                        <p className="text-lg font-semibold">
+                            {evaluation.socializacion.socializador}
+                        </p>
+
+                    </div>
+
+                    <div>
+
+                        <h3 className="mb-3 text-lg font-semibold">
+                            Compromisos
+                        </h3>
+
+                        {evaluation.socializacion.compromisos
+                            .length === 0 ? (
+
+                            <p className="text-gray-500">
+                                No existen compromisos.
+                            </p>
+
+                        ) : (
+
+                            <div className="space-y-3">
+
+                                {evaluation.socializacion.compromisos.map(
+                                    (item) => (
+
+                                        <div
+                                            key={
+                                                item.idCompromiso
+                                            }
+                                            className="rounded-lg border bg-gray-50 p-4"
+                                        >
+
+                                            {item.descripcion}
+
+                                        </div>
+
+                                    )
+                                )}
+
+                            </div>
+
+                        )}
+
+                    </div>
+
+                </>
+
+            ) : (
+
+                <div className="py-10 text-center">
+
+                    <h3 className="text-xl font-semibold text-red-600">
+
+                        La evaluación aún no ha sido socializada.
+
+                    </h3>
+
+                </div>
+
+            )}
+
         </div>
-    );
+
+    </div>
+);
 }

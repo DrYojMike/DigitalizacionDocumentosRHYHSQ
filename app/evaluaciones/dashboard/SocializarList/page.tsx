@@ -16,42 +16,56 @@ export default function Page() {
     };
 
     return (
-        <div className="mx-auto max-w-4xl p-6">
-            <div className="rounded-xl bg-white p-6 shadow-md">
-                <h1 className="mb-2 text-2xl font-bold">
-                    Buscar Evaluaciones
-                </h1>
+    <div className="min-h-screen bg-gray-50 py-10">
+        <div className="mx-auto max-w-5xl px-4">
+            <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-xl">
+                {/* Header */}
+                <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-6 text-white">
+                    <h1 className="text-3xl font-bold">
+                        Buscar Evaluaciones
+                    </h1>
+                    <p className="mt-2 text-blue-100">
+                        Consulta las evaluaciones pendientes de socialización de
+                        un colaborador ingresando su número de documento.
+                    </p>
+                </div>
 
-                <p className="mb-6 text-gray-600">
-                    Digita el documento del empleado para consultar sus
-                    evaluaciones pendientes de socialización.
-                </p>
+                {/* Formulario */}
+                <div className="space-y-6 p-8">
+                    <div>
+                        <label className="mb-2 block text-sm font-semibold text-gray-700">
+                            Documento del empleado
+                        </label>
 
-                <div className="flex flex-col gap-3 sm:flex-row">
-                    <input
-                        type="text"
-                        placeholder="Documento del empleado"
-                        value={documento}
-                        onChange={(e) => setDocumento(e.target.value)}
-                        onKeyDown={(e) => {
-                            if (e.key === "Enter") {
-                                handleBuscar();
-                            }
-                        }}
-                        className="flex-1 rounded-lg border border-gray-300 px-4 py-2 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                    />
+                        <div className="flex flex-col gap-3 md:flex-row">
+                            <input
+                                type="text"
+                                placeholder="Ej: 123456789"
+                                value={documento}
+                                onChange={(e) =>
+                                    setDocumento(e.target.value)
+                                }
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        handleBuscar();
+                                    }
+                                }}
+                                className="flex-1 rounded-xl border border-gray-300 px-4 py-3 text-gray-700 shadow-sm transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100 focus:outline-none"
+                            />
 
-                    <button
-                        onClick={handleBuscar}
-                        className="rounded-lg bg-blue-600 px-6 py-2 font-medium text-white transition hover:bg-blue-700"
-                    >
-                        Buscar
-                    </button>
+                            <button
+                                onClick={handleBuscar}
+                                className="rounded-xl bg-blue-600 px-8 py-3 font-semibold text-white shadow-md transition duration-200 hover:bg-blue-700 hover:shadow-lg active:scale-95"
+                            >
+                                Buscar
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             {buscarDocumento && (
-                <div className="mt-8">
+                <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-lg">
                     <SocializacionEvaluationListEmploye
                         key={buscarDocumento}
                         docuemntoEmpleado={buscarDocumento}
@@ -59,5 +73,6 @@ export default function Page() {
                 </div>
             )}
         </div>
-    );
+    </div>
+);
 }
