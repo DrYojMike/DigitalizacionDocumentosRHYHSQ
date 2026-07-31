@@ -19,10 +19,16 @@ interface CompromisoSocializacion {
     descripcion: string;
 }
 
+interface compromisosJefes{ 
+    idCompromiso: number
+    descripcion: string
+}
+
 interface Socializacion {
     idSocializacion: number;
     socializador: string;
     compromisos: CompromisoSocializacion[];
+    compromisosJefes: compromisosJefes[];
 }
 
 interface EvaluationSocializacionDetail {
